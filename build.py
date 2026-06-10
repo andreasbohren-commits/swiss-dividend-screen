@@ -39,51 +39,45 @@ ROWS = [
 ]
 BUCKET_CLS = {"Income":"hi","Balanced":"bar","Growth":"bar2"}
 
-# ---- live refresh: dividend yield + 12m mean-target upside (Yahoo Finance) ---
+# ---- live refresh: dividend yields from live prices (Yahoo chart endpoint) ---
+# The chart endpoint is keyless and reliable. Yields recompute from live price /
+# a stable dividend-per-share; the 12-month "signals" are reviewed periodically.
 YAHOO = {"SREN":"SREN.SW","PGHN":"PGHN.SW","ZURN":"ZURN.SW","SCMN":"SCMN.SW",
          "ROP":"ROG.SW","NOVN":"NOVN.SW","SGSN":"SGSN.SW","KNIN":"KNIN.SW",
          "NESN":"NESN.SW","HOLN":"HOLN.SW","UBSG":"UBSG.SW","ABBN":"ABBN.SW"}
+# approximate current annual dividend per share (CHF) — reviewed occasionally
+DPS = {"SREN":7.00,"PGHN":42.00,"ZURN":28.00,"SCMN":22.00,"ROP":9.70,
+       "NOVN":3.50,"SGSN":3.30,"KNIN":8.25,"NESN":3.05,"HOLN":2.10,
+       "UBSG":0.85,"ABBN":0.90}
 
 def fetch_live(rows):
     import requests
     s = requests.Session()
     s.headers.update({"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
                                     "(KHTML, like Gecko) Chrome/124 Safari/537.36"})
-    crumb = ""
-    try:
-        s.get("https://fc.yahoo.com", timeout=15)
-        crumb = s.get("https://query1.finance.yahoo.com/v1/test/getcrumb", timeout=15).text.strip()
-    except Exception as e:
-        print("crumb error:", e)
     n_ok = 0
     for r in rows:
         base = YAHOO.get(r[1])
         if not base:
             continue
-        candidates = [base] + (["ROP.SW"] if r[1] == "ROP" else [])
-        got = False
-        for sym in candidates:
+        price = None
+        for sym in [base] + (["ROP.SW"] if r[1] == "ROP" else []):
             try:
-                url = ("https://query1.finance.yahoo.com/v10/finance/quoteSummary/" + sym +
-                       "?modules=summaryDetail,financialData&crumb=" + crumb)
-                res = s.get(url, timeout=15).json()["quoteSummary"]["result"][0]
-                sd = res.get("summaryDetail", {}) or {}
-                fd = res.get("financialData", {}) or {}
-                dy = (sd.get("dividendYield") or {}).get("raw")
-                price = (fd.get("currentPrice") or {}).get("raw")
-                tgt = (fd.get("targetMeanPrice") or {}).get("raw")
-                if dy:
-                    r[3] = round(dy * 100, 1); r[4] = f"~{r[3]:.1f}%"; got = True
-                if price and tgt:
-                    up = round((tgt - price) / price * 100); r[5] = up
-                    r[6] = ("~+" if up >= 0 else "~") + f"{up}%"; got = True
-                if got:
+                url = ("https://query1.finance.yahoo.com/v8/finance/chart/" + sym +
+                       "?interval=1d&range=1d")
+                meta = s.get(url, timeout=15).json()["chart"]["result"][0]["meta"]
+                price = meta.get("regularMarketPrice")
+                if price:
                     break
             except Exception as e:
-                print("fetch fail", sym, e)
-        if got:
-            n_ok += 1
-    print(f"live refresh: {n_ok}/{len(rows)} names updated")
+                print("price fail", sym, e)
+        dps = DPS.get(r[1])
+        if price and dps:
+            y = round(dps / price * 100, 1)
+            r[3] = y; r[4] = f"~{y:.1f}%"; n_ok += 1
+        else:
+            print("no price/dps for", r[1], "price=", price)
+    print(f"yield refresh: {n_ok}/{len(rows)} names updated")
     return rows
 
 if os.getenv("LIVE_FETCH") == "1":
@@ -306,7 +300,7 @@ doc = f"""<!DOCTYPE html>
           <div class="fig-note"><b>Live:</b> last price and daily change refresh each time the page loads (market-hours / delay dependent). The dividend-yield and 12-month-signal columns below are indicative mid-2026 figures and do <b>not</b> update live.</div>
         </figure>
         <table class="tbl">
-          <caption>Swiss SMI dividend screen — yields &amp; targets auto-refreshed {UPDATED}</caption>
+          <caption>Swiss SMI dividend screen — dividend yields auto-refreshed {UPDATED} from live prices; 12-month signals reviewed periodically</caption>
           <thead><tr><th>Company</th><th>Ticker</th><th>Sector</th><th>Div. yield</th><th>12m signal</th><th>Tilt</th></tr></thead>
           <tbody>
           {table_rows}
