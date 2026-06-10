@@ -1,30 +1,28 @@
-name: Refresh dividend screen
+name: Rebuild dividend screen
 
+# Manual only. (Scheduled auto-refresh was removed: Yahoo Finance blocks
+# GitHub-hosted runner IPs, so a keyless server-side data pull can't work.
+# Live prices update client-side via the TradingView widgets on every visit.)
 on:
-  schedule:
-    - cron: "0 6 * * 1"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  refresh:
+  rebuild:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install requests
-      - name: Rebuild page with live data
-        env:
-          LIVE_FETCH: "1"
+      - name: Rebuild page
         run: python build.py
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git commit -m "Weekly data refresh ($(date -u +%Y-%m-%d))" || echo "No changes"
+          git commit -m "Rebuild ($(date -u +%Y-%m-%d))" || echo "No changes"
           git push
