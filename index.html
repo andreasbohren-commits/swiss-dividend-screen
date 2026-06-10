@@ -485,6 +485,7 @@ sup { font-size: .62em; }
     </div>
   </header>
   <div class="goldrule"></div>
+  <div class="tradingview-widget-container" style="border-bottom:1px solid var(--c-rule)"><div class="tradingview-widget-container__widget"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>{"symbols": [{"proName": "SIX:SREN", "title": "Swiss Re"}, {"proName": "SIX:PGHN", "title": "Partners Group"}, {"proName": "SIX:ZURN", "title": "Zurich Insurance"}, {"proName": "SIX:SCMN", "title": "Swisscom"}, {"proName": "SIX:ROG", "title": "Roche"}, {"proName": "SIX:NOVN", "title": "Novartis"}, {"proName": "SIX:SGSN", "title": "SGS"}, {"proName": "SIX:KNIN", "title": "K\u00fchne+Nagel"}, {"proName": "SIX:NESN", "title": "Nestl\u00e9"}, {"proName": "SIX:HOLN", "title": "Holcim"}, {"proName": "SIX:UBSG", "title": "UBS"}, {"proName": "SIX:ABBN", "title": "ABB"}], "showSymbolLogo": true, "isTransparent": true, "displayMode": "adaptive", "colorTheme": "light", "locale": "en"}</script></div>
 
   <div class="pad titleblock">
     <div class="eyebrow">Thematic screen · SMI</div>
@@ -570,6 +571,11 @@ sup { font-size: .62em; }
       <section class="section" id="s2" data-screen-label="02 The screen">
         <div class="sec-head"><span class="sec-num">02</span><h2 class="sec-title">The screen</h2></div>
         <div class="sec-rule"></div>
+        <figure class="figure">
+          <figcaption class="fig-cap"><span class="ttl">Live market prices</span><span class="ex">TradingView · live</span></figcaption>
+          <div class="fig-body"><div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>{"width": "100%", "height": 540, "symbolsGroups": [{"name": "Swiss SMI dividend screen", "symbols": [{"name": "SIX:SREN", "displayName": "Swiss Re"}, {"name": "SIX:PGHN", "displayName": "Partners Group"}, {"name": "SIX:ZURN", "displayName": "Zurich Insurance"}, {"name": "SIX:SCMN", "displayName": "Swisscom"}, {"name": "SIX:ROG", "displayName": "Roche"}, {"name": "SIX:NOVN", "displayName": "Novartis"}, {"name": "SIX:SGSN", "displayName": "SGS"}, {"name": "SIX:KNIN", "displayName": "K\u00fchne+Nagel"}, {"name": "SIX:NESN", "displayName": "Nestl\u00e9"}, {"name": "SIX:HOLN", "displayName": "Holcim"}, {"name": "SIX:UBSG", "displayName": "UBS"}, {"name": "SIX:ABBN", "displayName": "ABB"}]}], "showSymbolLogo": true, "isTransparent": true, "colorTheme": "light", "locale": "en"}</script></div></div>
+          <div class="fig-note"><b>Live:</b> last price and daily change refresh each time the page loads (market-hours / delay dependent). The dividend-yield and 12-month-signal columns below are indicative mid-2026 figures and do <b>not</b> update live.</div>
+        </figure>
         <table class="tbl">
           <caption>Swiss SMI dividend screen — indicative figures, mid-2026</caption>
           <thead><tr><th>Company</th><th>Ticker</th><th>Sector</th><th>Div. yield</th><th>12m signal</th><th>Tilt</th></tr></thead>
